@@ -601,26 +601,25 @@ $("modalBack").addEventListener("click",function(e){if(e.target===this)closeModa
 /* ── Photo feature ───────────────────────────────────────────────────── */
 var PHOTO_BASE="https://kalravihaan.github.io/utm-factory-job-work-cost/photos/";
 var PHOTO_EXTS=[".jpg",".jpeg",".png",".webp"];
-function normPhotoKey(s){return String(s||"").replace(/[^a-zA-Z0-9]/g,"").toUpperCase();}
 function openPhotoModal(sn,label){
   var pmb=$("photoBack");if(!pmb)return;
   $("photoTitle").textContent=label||sn;
   $("photoSub").textContent="";
   $("photoImgWrap").innerHTML='<div class="photo-loading">Looking for photo…</div>';
   pmb.classList.add("on");$("photoClose").focus();
-  var key=normPhotoKey(sn),exts=PHOTO_EXTS.slice();
+  var exts=PHOTO_EXTS.slice();
   function tryNext(){
     if(!exts.length){
       $("photoImgWrap").innerHTML='<div class="photo-none">'
         +'<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".4"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>'
         +'<p style="margin:14px 0 6px;font-weight:600">No photo found</p>'
-        +'<p style="font-size:11.5px">Upload <strong>'+esc(key.toLowerCase())+'.jpg</strong> to the photos folder</p></div>';
+        +'<p style="font-size:11.5px">Upload <strong>'+esc(sn)+'.jpg</strong> to the photos folder</p></div>';
       return;
     }
     var img=new Image();
     img.onload=function(){$("photoImgWrap").innerHTML='<img src="'+img.src+'" alt="'+esc(label||sn)+'">';};
     img.onerror=tryNext;
-    img.src=PHOTO_BASE+key+exts.shift();
+    img.src=PHOTO_BASE+encodeURIComponent(sn)+exts.shift();
   }
   tryNext();
 }
