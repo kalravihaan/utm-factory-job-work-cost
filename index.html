@@ -183,7 +183,10 @@ tfoot td.r{text-align:right}
 /* Style clickable photo button */
 .style-photo-btn{background:none;border:none;cursor:pointer;color:inherit;font:inherit;font-size:12.5px;text-align:left;padding:0;transition:color var(--dur-fast)}
 .style-photo-btn:hover{color:var(--primary-2);text-decoration:underline}
+.upload-photo-btn{display:inline-flex;align-items:center;gap:6px;background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);padding:7px 13px;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap;flex:none;transition:opacity .15s}
+.upload-photo-btn:hover{opacity:.88}
 @media(max-width:640px){.wrap{padding:16px 14px 48px}.kpi-value{font-size:18px}.header{padding:0 14px}}
+@media(max-width:520px){.upload-photo-btn span{display:none}}
 @media(max-width:768px){.brand-sub,.header-sep{display:none}}
 </style>
 </head>
@@ -201,7 +204,32 @@ tfoot td.r{text-align:right}
   </div>
   <div class="header-sep" aria-hidden="true"></div>
   <div class="file-chips" id="fileChips" aria-label="Loaded files"></div>
+  <button class="upload-photo-btn" id="uploadPhotoBtn" title="Upload a style photo to Cloudinary">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    Upload Photo
+  </button>
+  <input type="file" id="uploadPhotoInput" accept="image/*" style="display:none">
 </header>
+
+<!-- Upload Photo Modal -->
+<div class="photo-back" id="uploadBack">
+  <div class="photo-modal" id="uploadModal" style="max-width:420px">
+    <button class="photo-modal-close" id="uploadClose" aria-label="Close">✕</button>
+    <div class="photo-title" id="uploadTitle">Upload Style Photo</div>
+    <div id="uploadPreviewWrap" style="text-align:center;margin:12px 0;min-height:80px;display:flex;align-items:center;justify-content:center">
+      <div class="photo-loading" id="uploadPreviewPlaceholder">No file selected</div>
+    </div>
+    <div style="margin-bottom:10px">
+      <label style="font-size:12px;font-weight:600;color:var(--text-2);display:block;margin-bottom:4px">Style name (filename on Cloudinary)</label>
+      <input type="text" id="uploadNameInput" class="f-ctrl f-search" style="width:100%;min-width:unset" placeholder="e.g. 5009 - BLUE - KURTI">
+    </div>
+    <button class="upload-photo-btn" id="uploadSubmitBtn" style="width:100%;justify-content:center;gap:8px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Upload to Cloudinary
+    </button>
+    <div id="uploadStatus" style="margin-top:10px;font-size:12.5px;text-align:center;min-height:18px"></div>
+  </div>
+</div>
 
 <div class="wrap">
   <section class="dropzone" id="dropzone" role="region" aria-label="File upload area">
@@ -627,7 +655,51 @@ function closePhotoModal(){var pmb=$("photoBack");if(pmb)pmb.classList.remove("o
 $("photoClose").addEventListener("click",closePhotoModal);
 $("photoBack").addEventListener("click",function(e){if(e.target===this)closePhotoModal();});
 document.addEventListener("keydown",function(e){if(e.key==="Escape"){closeModal();closePhotoModal();}});
-/* ── End photo feature ───────────────────────────────────────────────── */
+/* ── Upload Photo feature ────────────────────────────────────────────── */
+var CLOUDINARY_CLOUD="drvlmso9j";
+var CLOUDINARY_PRESET="factory_upload";
+var _uploadFile=null;
+
+function openUploadModal(){$("uploadBack").classList.add("on");$("uploadStatus").textContent="";$("uploadNameInput").value="";$("uploadPreviewWrap").innerHTML='<div class="photo-loading" id="uploadPreviewPlaceholder">No file selected</div>';$("uploadSubmitBtn").disabled=false;$("uploadSubmitBtn").textContent="Upload to Cloudinary";}
+function closeUploadModal(){$("uploadBack").classList.remove("on");_uploadFile=null;}
+
+$("uploadPhotoBtn").addEventListener("click",function(){$("uploadPhotoInput").value="";$("uploadPhotoInput").click();});
+$("uploadPhotoInput").addEventListener("change",function(){
+  var f=this.files[0];if(!f)return;
+  _uploadFile=f;
+  var stem=f.name.replace(/\.[^.]+$/,"");
+  $("uploadNameInput").value=stem;
+  var reader=new FileReader();
+  reader.onload=function(e){$("uploadPreviewWrap").innerHTML='<img src="'+e.target.result+'" style="max-width:100%;max-height:200px;border-radius:8px;object-fit:contain">';};
+  reader.readAsDataURL(f);
+  openUploadModal();
+});
+$("uploadClose").addEventListener("click",closeUploadModal);
+$("uploadBack").addEventListener("click",function(e){if(e.target===this)closeUploadModal();});
+$("uploadSubmitBtn").addEventListener("click",function(){
+  if(!_uploadFile){$("uploadStatus").textContent="No file selected.";return;}
+  var name=($("uploadNameInput").value||"").trim();
+  if(!name){$("uploadStatus").textContent="Please enter a style name.";return;}
+  var ext=_uploadFile.name.match(/\.[^.]+$/);
+  var renamedFile=new File([_uploadFile],name+(ext?ext[0]:".jpg"),{type:_uploadFile.type});
+  var btn=$("uploadSubmitBtn");
+  btn.disabled=true;btn.textContent="Uploading…";$("uploadStatus").textContent="";
+  var fd=new FormData();
+  fd.append("file",renamedFile);
+  fd.append("upload_preset",CLOUDINARY_PRESET);
+  fetch("https://api.cloudinary.com/v1_1/"+CLOUDINARY_CLOUD+"/image/upload",{method:"POST",body:fd})
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(data.error){throw new Error(data.error.message);}
+      $("uploadStatus").innerHTML='<span style="color:var(--green)">✓ Uploaded! Photo will appear when you click the style.</span>';
+      btn.textContent="Upload Another";btn.disabled=false;_uploadFile=null;
+    })
+    .catch(function(err){
+      $("uploadStatus").innerHTML='<span style="color:var(--red)">✗ '+esc(err.message)+'</span>';
+      btn.textContent="Retry";btn.disabled=false;
+    });
+});
+/* ── End upload photo feature ────────────────────────────────────────── */
 
 function thS2(key,label,cls){var ar=sort2.key===key?'<span class="sort-icon">'+(sort2.dir===1?"&#x25b2;":"&#x25bc;")+"</span>":"",as=sort2.key===key?(sort2.dir===1?"ascending":"descending"):"none";return'<th class="'+(cls||"")+(sort2.key===key?" active-sort":"")+'" data-sort="'+key+'" aria-sort="'+as+'" scope="col">'+label+ar+"</th>";}
 
