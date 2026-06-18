@@ -599,7 +599,7 @@ $("modalClose").addEventListener("click",closeModal);
 $("modalBack").addEventListener("click",function(e){if(e.target===this)closeModal();});
 
 /* ── Photo feature ───────────────────────────────────────────────────── */
-var PHOTO_BASE="https://kalravihaan.github.io/utm-factory-job-work-cost/photos/";
+var PHOTO_BASE="https://res.cloudinary.com/drvlmso9j/image/upload/factory-photos/";
 var PHOTO_EXTS=[".jpg",".jpeg",".png",".webp"];
 function openPhotoModal(sn,label){
   var pmb=$("photoBack");if(!pmb)return;
@@ -619,7 +619,7 @@ function openPhotoModal(sn,label){
     var img=new Image();
     img.onload=function(){$("photoImgWrap").innerHTML='<img src="'+img.src+'" alt="'+esc(label||sn)+'">';};
     img.onerror=tryNext;
-    img.src=PHOTO_BASE+encodeURIComponent(sn)+exts.shift();
+    img.src=PHOTO_BASE+sn.replace(/[()]/g,"").replace(/\s+/g,"_")+exts.shift();
   }
   tryNext();
 }
