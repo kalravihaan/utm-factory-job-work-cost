@@ -70,17 +70,17 @@ input,select{font:inherit}
 .filters-toggle svg{transition:transform var(--dur-fast)}
 .filters-toggle.open .ft-chevron{transform:rotate(180deg)}
 .filters-badge{background:var(--primary);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:99px;line-height:16px}
-.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;overflow:hidden;transition:max-height var(--dur-slow) ease,opacity var(--dur) ease,padding var(--dur) ease}
+.filters{display:flex;gap:8px;flex-wrap:nowrap;align-items:flex-end;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;overflow:hidden;transition:max-height var(--dur-slow) ease,opacity var(--dur) ease,padding var(--dur) ease}
 .filters.collapsed{max-height:0;opacity:0;padding:0 16px;overflow:hidden}
 .filters.expanded{max-height:300px;opacity:1}
 .f-group{display:flex;flex-direction:column;gap:4px}
 .f-group label{font-size:10.5px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.07em;padding-left:1px}
-.f-ctrl{font-size:13px;color:var(--text);background:var(--surface-2);border:1px solid var(--border-2);border-radius:var(--radius-sm);padding:8px 10px;min-width:136px;min-height:40px;transition:border-color var(--dur-fast),box-shadow var(--dur-fast)}
+.f-ctrl{font-size:13px;color:var(--text);background:var(--surface-2);border:1px solid var(--border-2);border-radius:var(--radius-sm);padding:8px 10px;min-width:110px;min-height:40px;transition:border-color var(--dur-fast),box-shadow var(--dur-fast)}
 .f-ctrl:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,.18)}
 select.f-ctrl option{background:var(--surface-2)}
-.f-search{flex:1;min-width:200px}
+.f-search{flex:1;min-width:140px}
 .f-search .f-ctrl{width:100%}
-.f-date{min-width:130px}
+.f-date{min-width:110px}
 .f-date-sep{color:var(--text-3);font-size:13px;padding:0 3px;align-self:center;flex-shrink:0}
 .clear-btn{padding:8px 14px;border-radius:var(--radius-sm);min-height:40px;font-size:13px;font-weight:600;color:var(--primary);border:1px solid var(--primary-dim);background:var(--primary-soft);transition:all var(--dur-fast)}
 .clear-btn:hover{background:var(--primary-dim);color:var(--primary-2)}
@@ -232,9 +232,11 @@ tfoot td.r{text-align:right}
         <div class="f-group"><label for="fStatus">Payment</label><select id="fStatus" class="f-ctrl"></select></div>
         <div class="f-group" id="qcDateGroup" style="display:none">
           <label>QC Date</label>
-          <input type="date" id="fQCFrom" class="f-ctrl f-date" title="From date">
-          <span class="f-date-sep">–</span>
-          <input type="date" id="fQCTo" class="f-ctrl f-date" title="To date">
+          <div style="display:flex;align-items:center;gap:4px">
+            <input type="date" id="fQCFrom" class="f-ctrl f-date" title="From date">
+            <span class="f-date-sep">–</span>
+            <input type="date" id="fQCTo" class="f-ctrl f-date" title="To date">
+          </div>
         </div>
         <div class="f-group f-search"><label for="fSearch">Search style</label><input type="search" id="fSearch" class="f-ctrl" placeholder="Style code…"></div>
         <button type="button" class="clear-btn" id="clearBtn">Reset all</button>
